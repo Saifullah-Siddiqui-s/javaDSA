@@ -4,10 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAVA DSA - Learning Tracker</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <title>JAVA DSA  - Learning Tracker</title>
     <style>
         :root {
             --primary: #4361ee;
@@ -24,7 +21,6 @@
             --card-bg: #1e1e1e;
             --text: #e0e0e0;
             --border: #333;
-            --filter-bg: #2d2d2d;
         }
         
         [data-theme="light"] {
@@ -32,7 +28,6 @@
             --card-bg: #ffffff;
             --text: #333333;
             --border: #ddd;
-            --filter-bg: #f0f0f0;
         }
         
         * {
@@ -70,12 +65,6 @@
             color: var(--primary);
         }
         
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
         .theme-toggle {
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -88,35 +77,12 @@
             gap: 8px;
         }
         
-        .filter-controls {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .filter-btn {
-            background: var(--filter-bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .filter-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-        
         .progress-container {
             background: var(--card-bg);
             border-radius: 10px;
             padding: 25px;
             margin-bottom: 30px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 10px;
-            z-index: 100;
         }
         
         .progress-header {
@@ -234,39 +200,9 @@
             margin-bottom: 5px;
         }
         
-        .topic-item.pending {
-            background-color: rgba(247, 37, 133, 0.1);
-            border-radius: 4px;
-            padding-left: 8px;
-        }
-        
-        .topic-item.completed {
-            background-color: rgba(76, 201, 240, 0.1);
-            border-radius: 4px;
-            padding-left: 8px;
-        }
-        
-        .sync-status {
-            font-size: 12px;
-            color: var(--accent);
-            margin-top: 5px;
-            text-align: right;
-        }
-        
         @media (max-width: 768px) {
             .sections-container {
                 grid-template-columns: 1fr;
-            }
-            
-            .header-controls {
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 10px;
-            }
-            
-            .filter-controls {
-                width: 100%;
-                justify-content: flex-end;
             }
         }
     </style>
@@ -275,16 +211,9 @@
     <div class="container">
         <header>
             <div class="logo">Java DSA</div>
-            <div class="header-controls">
-                <div class="filter-controls">
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="completed">Completed</button>
-                    <button class="filter-btn" data-filter="pending">Pending</button>
-                </div>
-                <button class="theme-toggle" id="themeToggle">
-                    <span>🌙</span> Dark Mode
-                </button>
-            </div>
+            <button class="theme-toggle" id="themeToggle">
+                <span>🌙</span> Dark Mode
+            </button>
         </header>
         
         <div class="progress-container">
@@ -298,7 +227,6 @@
             <div class="progress-stats">
                 <span id="completedCount">0</span> of <span id="totalCount">0</span> topics completed
             </div>
-            <div class="sync-status" id="syncStatus">Last synced: Just now</div>
         </div>
         
         <div class="sections-container" id="sectionsContainer">
@@ -307,21 +235,6 @@
     </div>
 
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyBGp_S-cTjrL5x6htUkjfVIEH-RJA_b8UY",
-          authDomain: "java-dsa-52d4f.firebaseapp.com",
-          projectId: "java-dsa-52d4f",
-          storageBucket: "java-dsa-52d4f.firebasestorage.app",
-          messagingSenderId: "218248478608",
-          appId: "1:218248478608:web:abda97dc72620196ecbd15",
-          measurementId: "G-YCPYHZM1ZT"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
         // Curriculum data
         const curriculum = [
             {
@@ -701,72 +614,15 @@
             // Initialize sections
             renderSections();
             
-            // Set up Firebase listener for real-time updates
-            setupFirebaseListener();
+            // Load progress from localStorage
+            loadProgress();
+            
+            // Calculate and update overall progress
+            updateOverallProgress();
             
             // Set up theme toggle
             document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-            
-            // Set up filter buttons
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    const filter = this.dataset.filter;
-                    applyFilter(filter);
-                });
-            });
         });
-
-        // Set up Firebase real-time listener
-        function setupFirebaseListener() {
-            const progressRef = database.ref('progress');
-            
-            progressRef.on('value', (snapshot) => {
-                const progress = snapshot.val() || {};
-                updateProgressFromFirebase(progress);
-                updateOverallProgress();
-                updateLastSynced();
-            });
-        }
-
-        // Update progress from Firebase data
-        function updateProgressFromFirebase(progress) {
-            for (const section in progress) {
-                for (const topic in progress[section]) {
-                    const checkbox = document.getElementById(`topic-${section}-${topic}`);
-                    if (checkbox) {
-                        const isChecked = progress[section][topic];
-                        checkbox.checked = isChecked;
-                        
-                        // Update label style
-                        const label = checkbox.nextElementSibling;
-                        if (label) {
-                            if (isChecked) {
-                                label.classList.add('completed');
-                            } else {
-                                label.classList.remove('completed');
-                            }
-                        }
-                        
-                        // Update parent item classes for filtering
-                        const topicItem = checkbox.closest('.topic-item');
-                        if (topicItem) {
-                            topicItem.classList.toggle('completed', isChecked);
-                            topicItem.classList.toggle('pending', !isChecked);
-                        }
-                    }
-                }
-                updateSectionProgress(section);
-            }
-        }
-
-        // Update last synced time
-        function updateLastSynced() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            document.getElementById('syncStatus').textContent = `Last synced: ${timeString}`;
-        }
 
         // Render all sections
         function renderSections() {
@@ -796,7 +652,7 @@
                 
                 section.topics.forEach((topic, topicIndex) => {
                     const topicItem = document.createElement('li');
-                    topicItem.className = 'topic-item pending';
+                    topicItem.className = 'topic-item';
                     
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
@@ -806,7 +662,9 @@
                     checkbox.dataset.topic = topicIndex;
                     
                     checkbox.addEventListener('change', function() {
-                        saveProgressToFirebase(this);
+                        saveProgress(this);
+                        updateSectionProgress(this.dataset.section);
+                        updateOverallProgress();
                     });
                     
                     const label = document.createElement('label');
@@ -829,35 +687,42 @@
             });
         }
 
-        // Save progress to Firebase
-        function saveProgressToFirebase(checkbox) {
+        // Save progress to localStorage
+        function saveProgress(checkbox) {
             const section = checkbox.dataset.section;
             const topic = checkbox.dataset.topic;
             const isChecked = checkbox.checked;
             
-            // Update Firebase
-            database.ref(`progress/${section}/${topic}`).set(isChecked)
-                .then(() => {
-                    console.log('Progress saved to Firebase');
-                })
-                .catch((error) => {
-                    console.error('Error saving to Firebase:', error);
-                });
+            let progress = JSON.parse(localStorage.getItem('progress') || '{}');
             
-            // Update UI immediately
-            const label = checkbox.nextElementSibling;
-            if (label) {
-                label.classList.toggle('completed', isChecked);
+            if (!progress[section]) {
+                progress[section] = {};
             }
             
-            const topicItem = checkbox.closest('.topic-item');
-            if (topicItem) {
-                topicItem.classList.toggle('completed', isChecked);
-                topicItem.classList.toggle('pending', !isChecked);
-            }
+            progress[section][topic] = isChecked;
+            localStorage.setItem('progress', JSON.stringify(progress));
+        }
+
+        // Load progress from localStorage
+        function loadProgress() {
+            const progress = JSON.parse(localStorage.getItem('progress') || '{}');
             
-            updateSectionProgress(section);
-            updateOverallProgress();
+            for (const section in progress) {
+                for (const topic in progress[section]) {
+                    const checkbox = document.getElementById(`topic-${section}-${topic}`);
+                    if (checkbox) {
+                        checkbox.checked = progress[section][topic];
+                        
+                        // Update label style if completed
+                        if (checkbox.checked) {
+                            const label = checkbox.nextElementSibling;
+                            if (label) {
+                                label.classList.add('completed');
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // Update section progress indicator
@@ -870,6 +735,18 @@
                 const checkbox = document.getElementById(`topic-${sectionIndex}-${i}`);
                 if (checkbox && checkbox.checked) {
                     completedTopics++;
+                    
+                    // Ensure label has completed class
+                    const label = checkbox.nextElementSibling;
+                    if (label) {
+                        label.classList.add('completed');
+                    }
+                } else {
+                    // Ensure label doesn't have completed class
+                    const label = checkbox.nextElementSibling;
+                    if (label) {
+                        label.classList.remove('completed');
+                    }
                 }
             }
             
@@ -898,27 +775,6 @@
             document.getElementById('progressFill').style.width = `${percentage}%`;
             document.getElementById('completedCount').textContent = completedTopics;
             document.getElementById('totalCount').textContent = totalTopics;
-        }
-
-        // Apply filter to topics
-        function applyFilter(filter) {
-            const allTopics = document.querySelectorAll('.topic-item');
-            
-            allTopics.forEach(topic => {
-                const isCompleted = topic.classList.contains('completed');
-                
-                switch(filter) {
-                    case 'all':
-                        topic.style.display = 'flex';
-                        break;
-                    case 'completed':
-                        topic.style.display = isCompleted ? 'flex' : 'none';
-                        break;
-                    case 'pending':
-                        topic.style.display = isCompleted ? 'none' : 'flex';
-                        break;
-                }
-            });
         }
 
         // Theme toggle functions
