@@ -1,0 +1,800 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAVA DSA - Learning Tracker</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --dark: #1b263b;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --warning: #f72585;
+        }
+        
+        [data-theme="dark"] {
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #e0e0e0;
+            --border: #333;
+        }
+        
+        [data-theme="light"] {
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #ddd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .progress-container {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: var(--border);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--accent);
+        }
+        
+        .sections-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .section-progress {
+            font-size: 14px;
+            color: var(--accent);
+        }
+        
+        .topics-list {
+            list-style: none;
+        }
+        
+        .topic-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border);
+        }
+        
+        .topic-checkbox {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .topic-label {
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .topic-label.completed {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+        .expand-btn {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        
+        .subtopics {
+            list-style: none;
+            margin-left: 20px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .subtopics.show {
+            display: block;
+        }
+        
+        .subtopic-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .sections-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="container">
+        <header>
+            <div class="logo">CodeMastery</div>
+            <button class="theme-toggle" id="themeToggle">
+                <span>🌙</span> Dark Mode
+            </button>
+        </header>
+        
+        <div class="progress-container">
+            <div class="progress-header">
+                <h2>Learning Progress</h2>
+                <span id="overallProgress">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-stats">
+                <span id="completedCount">0</span> of <span id="totalCount">0</span> topics completed
+            </div>
+        </div>
+        
+        <div class="sections-container" id="sectionsContainer">
+            <!-- Sections will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Curriculum data
+        const curriculum = [
+            {
+                title: "Loops Basics",
+                topics: [
+                    "while, for, do-while Loops",
+                    "Break & Continue",
+                    "Prime Number Check"
+                ]
+            },
+            {
+                title: "Patterns (Part I)",
+                topics: [
+                    "Nested Loops (Star Pattern)",
+                    "Inverted Star Pattern",
+                    "Half Pyramid Pattern",
+                    "Character Pattern"
+                ]
+            },
+            {
+                title: "Patterns (Part II)",
+                topics: [
+                    "Hollow Rectangle",
+                    "Inverted & Rotated Half Pyramid",
+                    "Floyd's Triangle",
+                    "Butterfly Pattern",
+                    "Diamond Pattern"
+                ]
+            },
+            {
+                title: "Arrays (Part I)",
+                topics: [
+                    "Arrays Creation & Operations",
+                    "Linear Search",
+                    "Binary Search",
+                    "Reverse an Array",
+                    "Pairs in Array",
+                    "Print Subarrays"
+                ]
+            },
+            {
+                title: "Arrays (Part II)",
+                topics: [
+                    "Max Subarray Sum (Brute Force, Prefix Sum, Kadane's)",
+                    "Trapping Rainwater",
+                    "Best Time to Buy & Sell Stock"
+                ]
+            },
+            {
+                title: "Basic Sorting Algorithms",
+                topics: [
+                    "Bubble Sort",
+                    "Selection Sort",
+                    "Insertion Sort",
+                    "Counting Sort"
+                ]
+            },
+            {
+                title: "Strings",
+                topics: [
+                    "String Functions (Length, Concatenate, charAt)",
+                    "Check Palindrome",
+                    "StringBuilder",
+                    "String Compression",
+                    "Binary Number System"
+                ]
+            },
+            {
+                title: "Bit Manipulation",
+                topics: [
+                    "Introduction to Bit Manipulation",
+                    "Binary Number System",
+                    "Bitwise Operators:",
+                    "Binary AND",
+                    "Binary OR",
+                    "Binary XOR",
+                    "Binary 1's Complement",
+                    "Binary Left Shift",
+                    "Binary Right Shift",
+                    "Bit Operations:",
+                    "Check if Odd or Even",
+                    "Get ith Bit",
+                    "Set ith Bit",
+                    "Clear ith Bit",
+                    "Update ith bit",
+                    "Clear last i bits",
+                    "Clear range of bits",
+                    "Advanced Topics:",
+                    "Check if a number is power of 2 or not",
+                    "Count set bits in a number",
+                    "Fast Exponentiation",
+                    "Fast Exponentiation Code",
+                    "Practice Questions",
+                    "Solutions for Practice Qs"
+                ]
+            },
+            {
+                title: "Object Oriented Programming (OOPs)",
+                topics: [
+                    "Classes & Objects",
+                    "Encapsulation",
+                    "Inheritance",
+                    "Polymorphism",
+                    "Abstraction",
+                    "Interfaces",
+                    "Static & Super keywords"
+                ]
+            },
+            {
+                title: "Recursion Basics (Part 1)",
+                topics: [
+                    "Print numbers in decreasing/increasing order",
+                    "Factorial of N",
+                    "Sum of N natural numbers",
+                    "Nth Fibonacci number",
+                    "Check if array is sorted",
+                    "First/Last Occurrence",
+                    "Power of x to n"
+                ]
+            },
+            {
+                title: "Recursion & Divide & Conquer",
+                topics: [
+                    "Tiling Problem",
+                    "Remove Duplicates in a String",
+                    "Friends Pairing Problem",
+                    "Binary Strings Problem",
+                    "Merge Sort",
+                    "Quick Sort",
+                    "Sorted & Rotated Array Search"
+                ]
+            },
+            {
+                title: "Time & Space Complexity",
+                topics: [
+                    "Introduction",
+                    "Big O Notation",
+                    "Common Complexities",
+                    "Space Complexity",
+                    "Loop Analysis (Simple & Nested)",
+                    "Bubble Sort Analysis",
+                    "Binary Search Analysis",
+                    "Recursive Complexity Analysis"
+                ]
+            },
+            {
+                title: "Backtracking",
+                topics: [
+                    "Introduction",
+                    "Backtracking on Arrays",
+                    "Find Subsets",
+                    "Find Permutations",
+                    "N Queens",
+                    "Grid Ways",
+                    "Sudoku",
+                    "Practice Questions"
+                ]
+            },
+            {
+                title: "ArrayList",
+                topics: [
+                    "Introduction to ArrayList",
+                    "Operations on ArrayList",
+                    "Multi-dimensional ArrayLists",
+                    "Container with Most Water",
+                    "Pair Sum (1 & 2)",
+                    "Practice Questions"
+                ]
+            },
+            {
+                title: "Linked List Topics",
+                topics: [
+                    "Detecting Cycle in LL",
+                    "Removing Cycle in LL",
+                    "Merge Sort on LL",
+                    "Zig Zag Linked List",
+                    "Doubly LL",
+                    "Reverse a Doubly LL",
+                    "Circular LL",
+                    "Introduction to Linked List",
+                    "Head & Tail in LL",
+                    "Add First/Last in LL",
+                    "Remove First/Last in LL",
+                    "Reverse a Linked List",
+                    "Check if LL is Palindrome"
+                ]
+            },
+            {
+                title: "Stacks (Part 1)",
+                topics: [
+                    "Stack Introduction",
+                    "Stack using ArrayList",
+                    "Stack using Linked List",
+                    "Stack using Collections Framework",
+                    "Push at Bottom of Stack",
+                    "Reverse a String using a Stack",
+                    "Reverse a Stack",
+                    "Stock Span Problem",
+                    "Next greater element"
+                ]
+            },
+            {
+                title: "Stacks (Part 2)",
+                topics: [
+                    "Valid Parentheses",
+                    "Duplicate Parentheses",
+                    "Maximum Rectangular Area in Histogram",
+                    "Practice Questions"
+                ]
+            },
+            {
+                title: "Queues",
+                topics: [
+                    "Introduction to Queues",
+                    "Queues using Arrays",
+                    "Circular Queue using Arrays",
+                    "Queue using LL",
+                    "Queue using JCF",
+                    "Queue using Two Stacks",
+                    "Stack using 2 Queues",
+                    "First Non-Repeating Letter",
+                    "Interleave two halves of a Queue",
+                    "Queue Reversal",
+                    "Deque (Double Ended Queue)",
+                    "Practice Questions"
+                ]
+            },
+            {
+                title: "Greedy Algorithms",
+                topics: [
+                    "Introduction to Greedy",
+                    "Activity Selection",
+                    "Fractional Knapsack",
+                    "Minimum Sum absolute difference pairs",
+                    "Maximum length chain of pairs",
+                    "Indian Coins",
+                    "Job Sequencing Problem",
+                    "Chocola Problem",
+                    "Comparators in Java",
+                    "Practice Questions"
+                ]
+            },
+            {
+                title: "Binary Trees (Part1)",
+                topics: [
+                    "Introduction to Binary Trees",
+                    "Levels & Sub-trees in a Tree",
+                    "Build Tree Preorder",
+                    "Preorder Traversal",
+                    "Inorder Traversal",
+                    "Postorder Traversal",
+                    "Level order Traversal",
+                    "Height of a Tree",
+                    "Count of Nodes of a Tree",
+                    "Sum of Nodes"
+                ]
+            },
+            {
+                title: "Binary Trees (Part 2 & 3)",
+                topics: [
+                    "Diameter of a Tree (Approach1 & 2)",
+                    "Subtree of another tree",
+                    "Top View of a Tree (Basics, Approach, Code)",
+                    "Kth Level",
+                    "Lowest Common Ancestor (Approach1 & 2)",
+                    "Minimum Distance between 2 Nodes",
+                    "Kth ancestor of Node",
+                    "Transform to Sum Tree",
+                    "Practice Questions"
+                ]
+            },
+            {
+                title: "Binary Search Trees (Part 1 & 2)",
+                topics: [
+                    "Introduction",
+                    "Concept of Search in BST",
+                    "Build a BST",
+                    "Search in a BST",
+                    "Delete a Node",
+                    "Print in Range",
+                    "Root to Leaf Path",
+                    "Validate BST",
+                    "Mirror a BST",
+                    "Sorted Array to Balanced BST",
+                    "Convert BST to Balanced BST",
+                    "Size of Largest BST in BT",
+                    "AVL Trees",
+                    "Red Black Trees",
+                    "Practice Questions"
+                ]
+            },
+            {
+                title: "Heaps",
+                topics: [
+                    "Introduction to Priority Queues",
+                    "PQ in JCF",
+                    "PQ for Objects",
+                    "Introduction to Heaps",
+                    "Heap Implementation (using CBT)",
+                    "Insert in Heap",
+                    "Peek from Heap",
+                    "Remove from Heap",
+                    "Heap Sort",
+                    "Nearby Cars",
+                    "Connect N Ropes with Minimum Cost",
+                    "Weakest Soldier",
+                    "Sliding Window Maximum",
+                    "Practice Questions"
+                ]
+            },
+            {
+                title: "Hashing",
+                topics: [
+                    "Hashing Introduction",
+                    "HashMap",
+                    "HashMap Operations",
+                    "Iteration on HashMaps",
+                    "HashMap Implementation",
+                    "Update in Code",
+                    "HashMap Implementation Code",
+                    "Special Note",
+                    "LinkedHashMap",
+                    "TreeMap",
+                    "Comparison Table",
+                    "Majority Element",
+                    "Valid Anagram",
+                    "HashSet",
+                    "Iteration on HashSets",
+                    "LinkedHashSet",
+                    "TreeSet",
+                    "Count Distinct Elements",
+                    "Union & Intersection",
+                    "Count Distinct Elements",
+                    "Union & Intersection",
+                    "Find Itinerary for Tickets",
+                    "Largest Subarray with Sum 0",
+                    "Subarray Sum Equal to K",
+                    "Practice Questions"
+                ]
+            },
+            {
+                title: "Tries",
+                topics: [
+                    "Tries Introduction",
+                    "What is a Trie?",
+                    "Creating a Trie",
+                    "Insertion",
+                    "Searching",
+                    "Word Break Problem",
+                    "Prefix Problem",
+                    "startsWith Problem",
+                    "Unique Substrings",
+                    "Longest Word with all Prefixes",
+                    "Practice Questions"
+                ]
+            },
+            {
+                title: "Upcoming Java Topics",
+                topics: [
+                    "2001 Heaps",
+                    "2002 Hashing (Maps & Sets)",
+                    "2003 Tries",
+                    "2004 Graphs",
+                    "2005 Dynamic Programming",
+                    "2006 Segment Trees"
+                ]
+            }
+        ];
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load theme preference
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeToggle(savedTheme);
+            
+            // Initialize sections
+            renderSections();
+            
+            // Load progress from localStorage
+            loadProgress();
+            
+            // Calculate and update overall progress
+            updateOverallProgress();
+            
+            // Set up theme toggle
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+        });
+
+        // Render all sections
+        function renderSections() {
+            const container = document.getElementById('sectionsContainer');
+            
+            curriculum.forEach((section, sectionIndex) => {
+                const sectionCard = document.createElement('div');
+                sectionCard.className = 'section-card';
+                
+                const sectionHeader = document.createElement('div');
+                sectionHeader.className = 'section-header';
+                
+                const sectionTitle = document.createElement('div');
+                sectionTitle.className = 'section-title';
+                sectionTitle.textContent = section.title;
+                
+                const sectionProgress = document.createElement('div');
+                sectionProgress.className = 'section-progress';
+                sectionProgress.id = `section-progress-${sectionIndex}`;
+                sectionProgress.textContent = '0/0';
+                
+                sectionHeader.appendChild(sectionTitle);
+                sectionHeader.appendChild(sectionProgress);
+                
+                const topicsList = document.createElement('ul');
+                topicsList.className = 'topics-list';
+                
+                section.topics.forEach((topic, topicIndex) => {
+                    const topicItem = document.createElement('li');
+                    topicItem.className = 'topic-item';
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'topic-checkbox';
+                    checkbox.id = `topic-${sectionIndex}-${topicIndex}`;
+                    checkbox.dataset.section = sectionIndex;
+                    checkbox.dataset.topic = topicIndex;
+                    
+                    checkbox.addEventListener('change', function() {
+                        saveProgress(this);
+                        updateSectionProgress(this.dataset.section);
+                        updateOverallProgress();
+                    });
+                    
+                    const label = document.createElement('label');
+                    label.className = 'topic-label';
+                    label.htmlFor = `topic-${sectionIndex}-${topicIndex}`;
+                    label.textContent = topic;
+                    
+                    topicItem.appendChild(checkbox);
+                    topicItem.appendChild(label);
+                    
+                    topicsList.appendChild(topicItem);
+                });
+                
+                sectionCard.appendChild(sectionHeader);
+                sectionCard.appendChild(topicsList);
+                container.appendChild(sectionCard);
+                
+                // Initialize section progress
+                updateSectionProgress(sectionIndex);
+            });
+        }
+
+        // Save progress to localStorage
+        function saveProgress(checkbox) {
+            const section = checkbox.dataset.section;
+            const topic = checkbox.dataset.topic;
+            const isChecked = checkbox.checked;
+            
+            let progress = JSON.parse(localStorage.getItem('progress') || '{}');
+            
+            if (!progress[section]) {
+                progress[section] = {};
+            }
+            
+            progress[section][topic] = isChecked;
+            localStorage.setItem('progress', JSON.stringify(progress));
+        }
+
+        // Load progress from localStorage
+        function loadProgress() {
+            const progress = JSON.parse(localStorage.getItem('progress') || '{}');
+            
+            for (const section in progress) {
+                for (const topic in progress[section]) {
+                    const checkbox = document.getElementById(`topic-${section}-${topic}`);
+                    if (checkbox) {
+                        checkbox.checked = progress[section][topic];
+                        
+                        // Update label style if completed
+                        if (checkbox.checked) {
+                            const label = checkbox.nextElementSibling;
+                            if (label) {
+                                label.classList.add('completed');
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Update section progress indicator
+        function updateSectionProgress(sectionIndex) {
+            const section = curriculum[sectionIndex];
+            const totalTopics = section.topics.length;
+            let completedTopics = 0;
+            
+            for (let i = 0; i < totalTopics; i++) {
+                const checkbox = document.getElementById(`topic-${sectionIndex}-${i}`);
+                if (checkbox && checkbox.checked) {
+                    completedTopics++;
+                    
+                    // Ensure label has completed class
+                    const label = checkbox.nextElementSibling;
+                    if (label) {
+                        label.classList.add('completed');
+                    }
+                } else {
+                    // Ensure label doesn't have completed class
+                    const label = checkbox.nextElementSibling;
+                    if (label) {
+                        label.classList.remove('completed');
+                    }
+                }
+            }
+            
+            const progressElement = document.getElementById(`section-progress-${sectionIndex}`);
+            if (progressElement) {
+                progressElement.textContent = `${completedTopics}/${totalTopics}`;
+            }
+            
+            return { completed: completedTopics, total: totalTopics };
+        }
+
+        // Update overall progress
+        function updateOverallProgress() {
+            let totalTopics = 0;
+            let completedTopics = 0;
+            
+            curriculum.forEach((section, index) => {
+                const progress = updateSectionProgress(index);
+                totalTopics += progress.total;
+                completedTopics += progress.completed;
+            });
+            
+            const percentage = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+            
+            document.getElementById('overallProgress').textContent = `${percentage}%`;
+            document.getElementById('progressFill').style.width = `${percentage}%`;
+            document.getElementById('completedCount').textContent = completedTopics;
+            document.getElementById('totalCount').textContent = totalTopics;
+        }
+
+        // Theme toggle functions
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeToggle(newTheme);
+        }
+
+        function updateThemeToggle(theme) {
+            const toggle = document.getElementById('themeToggle');
+            if (theme === 'dark') {
+                toggle.innerHTML = '<span>🌙</span> Dark Mode';
+            } else {
+                toggle.innerHTML = '<span>☀️</span> Light Mode';
+            }
+        }
+    </script>
+</body>
+</html>
